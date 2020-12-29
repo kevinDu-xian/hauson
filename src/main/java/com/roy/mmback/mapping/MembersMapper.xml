@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.roy.mmback.dao.MembersDao">
+    <!-- 结果映射 -->
+    <resultMap type="Members" id="SelRM1">
+        <id property="id" column="ID"/>
+        <result property="memberNumber" column="MEMBERNUMBER"/>
+        <result property="nickName" column="NICKNAME"/>
+        <result property="createTime" column="CREATETIME"/>
+
+        <!-- 多对一映射 -->
+        <association
+                property="goods"
+                javaType="Goods"
+                select="com.roy.mmback.dao.GoodsDao.getById"
+                column="GOODSID"></association>
+    </resultMap>
+
+    <!-- 查询所有会员 -->
+    <select id="getMembersList" resultMap="SelRM1" parameterType="Members">
+		SELECT id,memberNumber,nickName,DATE_FORMAT(createTime,'%Y-%m-%d %H:%i') as createTime,goodsId FROM `members`
+
+		<where>
+            <if test="memberNumber !=null">
+                AND memberNumber LIKE concat('%',#{memberNumber},'%')
+            </if>
+        </where>
+
+        ORDER BY createTime DESC
+	</select>
+
+    <!-- 新增会员 -->
+    <insert id="add" parameterType="com.roy.mmback.beans.vo.MembersVO">
+		INSERT INTO MEMBERS(memberNumber,nickName,createTime,goodsId)
+        VALUES(#{memberNumber},#{nickName},SYSDATE(),#{goodsId})
+	</insert>
+
+    <!-- 删除会员 -->
+    <delete id="del" parameterType="int">
+		DELETE FROM MEMBERS WHERE ID=#{id}
+	</delete>
+
+
+</mapper>
